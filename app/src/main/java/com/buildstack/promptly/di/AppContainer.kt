@@ -5,11 +5,12 @@ import androidx.room.Room
 import com.buildstack.promptly.data.local.PromptlyDatabase
 import com.buildstack.promptly.data.remote.GroqApi
 import com.buildstack.promptly.data.repository.ChatRepositoryImpl
+import com.buildstack.promptly.data.repository.GroqRepositoryImpl
 import com.buildstack.promptly.data.repository.SettingsRepositoryImpl
 import com.buildstack.promptly.domain.repository.ChatRepository
 import com.buildstack.promptly.domain.repository.GroqRepository
 import com.buildstack.promptly.domain.repository.SettingsRepository
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -24,7 +25,10 @@ interface AppContainer {
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json { 
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -51,7 +55,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
 
     override val chatRepository: ChatRepository by lazy {
-        ChatRepositoryImpl(promptlyDatabase.chatDao)
+        ChatRepositoryImpl(promptlyDatabase.chatDao())
     }
 
     override val groqRepository: GroqRepository by lazy {

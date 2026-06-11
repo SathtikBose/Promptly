@@ -16,6 +16,8 @@ import com.buildstack.promptly.presentation.chat.ChatScreen
 import com.buildstack.promptly.presentation.chat.ChatViewModel
 import com.buildstack.promptly.presentation.chat.ChatViewModelFactory
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 
 @Composable
 fun HomeScreen(
@@ -29,6 +31,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     var currentChatId by remember { mutableStateOf(0L) }
+    var sessionKey by remember { mutableStateOf(0) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -48,9 +51,11 @@ fun HomeScreen(
 
                 NavigationDrawerItem(
                     label = { Text("New Chat") },
+                    icon = { Icon(Icons.Default.Add, contentDescription = "New Chat") },
                     selected = currentChatId == 0L,
                     onClick = {
                         currentChatId = 0L
+                        sessionKey++
                         scope.launch { drawerState.close() }
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -92,7 +97,7 @@ fun HomeScreen(
         }
     ) {
         val chatViewModel: ChatViewModel = viewModel(
-            key = "chat_$currentChatId",
+            key = "chat_${currentChatId}_$sessionKey",
             factory = ChatViewModelFactory(appContainer.chatRepository, appContainer.groqRepository, currentChatId)
         )
 

@@ -39,7 +39,8 @@ class ChatViewModel(
             _isGenerating.value = true
             
             // 1. Create chat if it doesn't exist
-            val activeChatId = if (_currentChatId.value == 0L) {
+            val isNewChat = _currentChatId.value == 0L
+            val activeChatId = if (isNewChat) {
                 val newId = chatRepository.createChat("New Chat")
                 _currentChatId.value = newId
                 newId
@@ -57,11 +58,9 @@ class ChatViewModel(
             val result = groqRepository.generateResponse(history)
 
             result.onSuccess { aiResponse ->
-                // 5. Save AI response
                 chatRepository.addMessage(activeChatId, "assistant", aiResponse)
-
-                // 6. Generate Title if it's the first message
-                if (history.size == 1) {
+                
+                if (isNewChat) {
                     generateTitle(activeChatId, content, aiResponse)
                 }
             }.onFailure {
@@ -76,7 +75,7 @@ class ChatViewModel(
     private fun generateTitle(chatId: Long, userMessage: String, aiResponse: String) {
         viewModelScope.launch {
             val prompt = listOf(
-                Pair("user", "Conversation Context: User said: '$userMessage', AI replied: '$aiResponse'. Generate a short title under 5 words for this conversation.")
+                Pair("user", "Conversation Context: User said: '$userMessage', AI replied: '$aiResponse'. Generate a short 2-3 word title for this chat. Return ONLY the raw title string, no quotes, no conversational text, no explanations.")
             )
             groqRepository.generateResponse(prompt).onSuccess { title ->
                 // Clean up title quotes if any

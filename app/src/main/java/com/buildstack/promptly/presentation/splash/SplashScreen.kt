@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -26,13 +27,8 @@ fun SplashScreen(
     LaunchedEffect(key1 = true) {
         scale.animateTo(
             targetValue = 1.2f,
-            animationSpec = tween(durationMillis = 800)
+            animationSpec = tween(durationMillis = 500)
         )
-        for (i in 1..100) {
-            delay(10)
-            percentage = i
-        }
-        delay(300)
         onNavigateToHome()
     }
 
@@ -43,16 +39,15 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // App Logo placeholder (Scale animation)
-            Box(
+            // App Logo (Scale animation)
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(id = com.buildstack.promptly.R.mipmap.ic_launcher_foreground),
+                contentDescription = "App Logo",
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(120.dp)
                     .scale(scale.value)
-                    .background(MaterialTheme.colorScheme.primary, shape = androidx.compose.foundation.shape.CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("P", color = Color.Black, fontSize = 48.sp, fontWeight = FontWeight.Bold)
-            }
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+            )
             
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -64,30 +59,6 @@ fun SplashScreen(
                 fontWeight = FontWeight.Bold
             )
             
-            Spacer(modifier = Modifier.height(48.dp))
-            
-            // Progress Bar & Percentage
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(8.dp)
-                    .background(MaterialTheme.colorScheme.surface, shape = androidx.compose.foundation.shape.CircleShape)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(percentage / 100f)
-                        .fillMaxHeight()
-                        .background(MaterialTheme.colorScheme.primary, shape = androidx.compose.foundation.shape.CircleShape)
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "$percentage%",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp
-            )
         }
     }
 }

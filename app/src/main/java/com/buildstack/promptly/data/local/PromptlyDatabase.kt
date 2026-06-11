@@ -5,5 +5,5 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [ChatEntity::class, MessageEntity::class], version = 1, exportSchema = false)
 abstract class PromptlyDatabase : RoomDatabase() {
-    abstract val chatDao: ChatDao
+    abstract fun chatDao(): ChatDao
 }
