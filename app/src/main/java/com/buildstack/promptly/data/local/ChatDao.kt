@@ -9,10 +9,10 @@ interface ChatDao {
     suspend fun insertChat(chat: ChatEntity): Long
 
     @Update
-    suspend fun updateChat(chat: ChatEntity)
+    suspend fun updateChat(chat: ChatEntity): Int
 
     @Delete
-    suspend fun deleteChat(chat: ChatEntity)
+    suspend fun deleteChat(chat: ChatEntity): Int
 
     @Query("SELECT * FROM chat_table ORDER BY updatedAt DESC")
     fun getAllChats(): Flow<List<ChatEntity>>
@@ -21,10 +21,10 @@ interface ChatDao {
     suspend fun getChatById(id: Long): ChatEntity?
 
     @Query("DELETE FROM chat_table")
-    suspend fun clearAllChats()
+    suspend fun clearAllChats(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMessage(message: MessageEntity)
+    suspend fun insertMessage(message: MessageEntity): Long
 
     @Query("SELECT * FROM message_table WHERE chatId = :chatId ORDER BY timestamp ASC")
     fun getMessagesForChat(chatId: Long): Flow<List<MessageEntity>>

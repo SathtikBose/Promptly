@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,12 +12,18 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +43,8 @@ fun ChatScreen(
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var showMenu by remember { mutableStateOf(false) }
 
     // Auto scroll to bottom when messages change or generating starts/stops
     LaunchedEffect(messages.size, isGenerating) {
@@ -50,7 +59,26 @@ fun ChatScreen(
                 title = { Text("Promptly Chat", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onOpenDrawer) {
-                        Icon(androidx.compose.material.icons.Icons.Default.Menu, contentDescription = "Open Drawer")
+                        Icon(Icons.Default.Menu, contentDescription = "Open Drawer")
+                    }
+                },
+                actions = {
+                    if (messages.isNotEmpty()) {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More")
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Delete Chat", color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.deleteChat()
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -75,6 +103,22 @@ fun ChatScreen(
                 contentPadding = PaddingValues(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                if (messages.isEmpty() && !isGenerating) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillParentMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "How can I help you today?",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+                
                 items(messages) { message ->
                     MessageBubble(
                         message = message,
@@ -118,6 +162,7 @@ fun ChatScreen(
                         if (inputText.isNotBlank() && !isGenerating) {
                             viewModel.sendMessage(inputText)
                             inputText = ""
+                            keyboardController?.hide()
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -138,6 +183,8 @@ fun MessageBubble(
     isGenerating: Boolean
 ) {
     val isUser = message.role == "user"
+    val clipboardManager = LocalClipboardManager.current
+    var showCopiedToast by remember { mutableStateOf(false) }
     
     // Typewriter effect state
     var displayedText by remember { mutableStateOf(if (isUser || !isLastMessage || !isGenerating) message.content else "") }
@@ -175,6 +222,14 @@ fun MessageBubble(
                     if (isUser) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                     else MaterialTheme.colorScheme.surface
                 )
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            clipboardManager.setText(AnnotatedString(message.content))
+                            showCopiedToast = true
+                        }
+                    )
+                }
                 .padding(16.dp)
         ) {
             Text(

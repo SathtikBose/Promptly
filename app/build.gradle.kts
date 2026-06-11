@@ -2,7 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.kotlin.serialization)
-  kotlin("kapt")
+  alias(libs.plugins.ksp)
 }
 
 import java.util.Properties
@@ -94,7 +94,7 @@ dependencies {
   // Room Database
   implementation(libs.androidx.room.runtime)
   implementation(libs.androidx.room.ktx)
-  kapt(libs.androidx.room.compiler)
+  ksp(libs.androidx.room.compiler)
 
   // Network
   implementation(libs.retrofit)

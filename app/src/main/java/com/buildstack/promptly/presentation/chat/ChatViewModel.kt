@@ -85,6 +85,16 @@ class ChatViewModel(
             }
         }
     }
+
+    fun deleteChat() {
+        if (_currentChatId.value == 0L) return
+        viewModelScope.launch {
+            chatRepository.getChatById(_currentChatId.value)?.let {
+                chatRepository.deleteChat(it)
+                _currentChatId.value = 0L
+            }
+        }
+    }
 }
 
 class ChatViewModelFactory(
