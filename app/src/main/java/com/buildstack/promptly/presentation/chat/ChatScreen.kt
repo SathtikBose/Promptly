@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel,
-    onBack: () -> Unit
+    onOpenDrawer: () -> Unit
 ) {
     val messages by viewModel.messages.collectAsState()
     val isGenerating by viewModel.isGenerating.collectAsState()
@@ -48,6 +48,11 @@ fun ChatScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Promptly Chat", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(androidx.compose.material.icons.Icons.Default.Menu, contentDescription = "Open Drawer")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface
