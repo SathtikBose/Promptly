@@ -5,9 +5,10 @@ import androidx.room.Room
 import com.buildstack.promptly.data.local.PromptlyDatabase
 import com.buildstack.promptly.data.remote.GroqApi
 import com.buildstack.promptly.data.repository.ChatRepositoryImpl
-import com.buildstack.promptly.data.repository.GroqRepositoryImpl
+import com.buildstack.promptly.data.repository.SettingsRepositoryImpl
 import com.buildstack.promptly.domain.repository.ChatRepository
 import com.buildstack.promptly.domain.repository.GroqRepository
+import com.buildstack.promptly.domain.repository.SettingsRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -18,6 +19,7 @@ import retrofit2.Retrofit
 interface AppContainer {
     val chatRepository: ChatRepository
     val groqRepository: GroqRepository
+    val settingsRepository: SettingsRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -54,5 +56,9 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val groqRepository: GroqRepository by lazy {
         GroqRepositoryImpl(groqApi)
+    }
+
+    override val settingsRepository: SettingsRepository by lazy {
+        SettingsRepositoryImpl(context)
     }
 }

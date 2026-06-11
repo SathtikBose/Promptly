@@ -14,6 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.buildstack.promptly.di.AppContainer
 import com.buildstack.promptly.presentation.home.HomeScreen
+import com.buildstack.promptly.presentation.settings.SettingsScreen
+import com.buildstack.promptly.presentation.settings.SettingsViewModel
+import com.buildstack.promptly.presentation.settings.SettingsViewModelFactory
 import com.buildstack.promptly.presentation.splash.SplashScreen
 
 @Composable
@@ -37,8 +40,12 @@ fun AppNavigation(appContainer: AppContainer) {
             )
         }
         composable("settings") {
-            // Placeholder for Settings
-            androidx.compose.material3.Text("Settings Screen - Under Construction")
+            val factory = SettingsViewModelFactory(appContainer.settingsRepository, appContainer.chatRepository)
+            val viewModel: SettingsViewModel = viewModel(factory = factory)
+            SettingsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
