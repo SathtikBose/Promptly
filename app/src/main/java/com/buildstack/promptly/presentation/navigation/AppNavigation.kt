@@ -11,10 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.buildstack.promptly.di.AppContainer
+import com.buildstack.promptly.presentation.chat.ChatScreen
+import com.buildstack.promptly.presentation.chat.ChatViewModel
+import com.buildstack.promptly.presentation.chat.ChatViewModelFactory
 import com.buildstack.promptly.presentation.splash.SplashScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(appContainer: AppContainer) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "splash") {
@@ -28,10 +33,14 @@ fun AppNavigation() {
             )
         }
         composable("home") {
-            // Placeholder for Home Screen
-            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
-                Text("Home Screen - Under Construction", color = MaterialTheme.colorScheme.onBackground)
-            }
+            // For now, jump straight to new chat for testing ChatSystem
+            // In Phase 5, this will be the actual Home screen logic
+            val factory = ChatViewModelFactory(appContainer.chatRepository, appContainer.groqRepository, 0L)
+            val viewModel: ChatViewModel = viewModel(factory = factory)
+            ChatScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
